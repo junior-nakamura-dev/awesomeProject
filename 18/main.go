@@ -1,7 +1,7 @@
 package main
 
 import (
-	"awesomeProject/18/math"
+	"class18/math"
 	"fmt"
 )
 
