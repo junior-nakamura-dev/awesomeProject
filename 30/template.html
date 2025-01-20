@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Test</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>Name</tr>
+            <tr>Hours</tr>
+        </thead>
+        <tbody>
+            {{ range . }}
+            <td> {{.Name}} </td>
+            <td> {{.Hours}} </td>
+            {{ end }}
+        </tbody>
+    </table>
+
+</body>
+</html>
