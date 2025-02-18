@@ -1,7 +1,9 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"github.com/google/uuid"
 )
 
@@ -20,5 +22,35 @@ func NewProduct(description string, price float64) *Product {
 }
 
 func main() {
-	fmt.Printf("products %+v\n", NewProduct("Test", 10.90))
+	db, err := sql.Open("mysql", "root:example@tcp(localhost:3306)/go_database")
+
+	if err != nil {
+		fmt.Println(err)
+		panic(err)
+	}
+
+	product := NewProduct("Test", 10.90)
+	err = insertProduct(db, *product)
+
+	if err != nil {
+		panic(err)
+	}
+	defer db.Close()
+
+}
+
+func insertProduct(db *sql.DB, product Product) error {
+
+	stm, err := db.Prepare("INSERT INTO PRODUCTS (id, description, price) VALUES (?, ?, ?)")
+	if err != nil {
+		return err
+	}
+
+	defer stm.Close()
+
+	_, err = stm.Exec(product.ID, product.Description, product.price)
+	if err != nil {
+		return err
+	}
+	return nil
 }
