@@ -39,6 +39,13 @@ func main() {
 	product.Description = "Updated product"
 	updateProduct(db, *product)
 
+	product, err = selectProduct(db, product.ID)
+	if err != nil {
+		panic(err)
+	}
+
+	fmt.Println(">" + product.Description + "<")
+
 	defer db.Close()
 }
 
@@ -71,4 +78,20 @@ func updateProduct(db *sql.DB, product Product) error {
 		return err
 	}
 	return nil
+}
+
+func selectProduct(db *sql.DB, id string) (*Product, error) {
+	stm, err := db.Prepare("SELECT id, description, price FROM PRODUCTS WHERE id = ?")
+	if err != nil {
+		return nil, err
+	}
+
+	defer stm.Close()
+	var product Product
+	err = stm.QueryRow(id).Scan(&product.ID, &product.Description, &product.price)
+	if err != nil {
+		return nil, err
+	}
+
+	return &product, nil
 }
