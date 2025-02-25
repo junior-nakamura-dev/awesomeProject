@@ -29,14 +29,21 @@ func main() {
 		panic(err)
 	}
 
-	product := NewProduct("Test", 10.90)
+	product := NewProduct("Test I", 10.90)
 	err = insertProduct(db, *product)
 
 	if err != nil {
 		panic(err)
 	}
 
-	product.Description = "Updated product"
+	product1 := NewProduct("Test I", 10.90)
+	err = insertProduct(db, *product1)
+
+	if err != nil {
+		panic(err)
+	}
+
+	product.Description = "Updated product I"
 	updateProduct(db, *product)
 
 	product, err = selectProduct(db, product.ID)
@@ -45,6 +52,15 @@ func main() {
 	}
 
 	fmt.Println(">" + product.Description + "<")
+
+	products, err := selectAllProducts(db)
+	if err != nil {
+		panic(err)
+	}
+
+	for _, product := range products {
+		fmt.Println(">" + product.Description + "<")
+	}
 
 	defer db.Close()
 }
@@ -94,4 +110,33 @@ func selectProduct(db *sql.DB, id string) (*Product, error) {
 	}
 
 	return &product, nil
+}
+func selectAllProducts(db *sql.DB) ([]Product, error) {
+	stm, err := db.Prepare("SELECT id, description, price FROM PRODUCTS")
+	if err != nil {
+		return nil, err
+	}
+	defer stm.Close()
+
+	rows, err := stm.Query()
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var products []Product
+	for rows.Next() {
+		var product Product
+		err := rows.Scan(&product.ID, &product.Description, &product.price)
+		if err != nil {
+			return nil, err
+		}
+		products = append(products, product)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return products, nil
 }
