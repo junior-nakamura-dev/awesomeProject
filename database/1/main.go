@@ -36,7 +36,7 @@ func main() {
 		panic(err)
 	}
 
-	product1 := NewProduct("Test I", 10.90)
+	product1 := NewProduct("Test II", 10.90)
 	err = insertProduct(db, *product1)
 
 	if err != nil {
@@ -61,6 +61,9 @@ func main() {
 	for _, product := range products {
 		fmt.Println(">" + product.Description + "<")
 	}
+
+	deleteProduct(db, product.ID)
+	deleteProduct(db, product1.ID)
 
 	defer db.Close()
 }
@@ -139,4 +142,17 @@ func selectAllProducts(db *sql.DB) ([]Product, error) {
 	}
 
 	return products, nil
+}
+
+func deleteProduct(db *sql.DB, id string) error {
+	stm, err := db.Prepare("DELETE FROM PRODUCTS WHERE id = ?")
+	if err != nil {
+		return err
+	}
+	defer stm.Close()
+	_, err = stm.Exec(id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
